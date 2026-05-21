@@ -1,88 +1,83 @@
 # STEP to DXF Flat Pattern Converter
 
-Автоматический конвертер 3D моделей деталей из листового металла (STEP/.stp/.step) в плоские 2D чертежи (DXF) для лазерной, плазменной и гидроабразивной резки на ЧПУ станках.
+An automatic converter for 3D sheet metal parts (STEP/.stp/.step) into flat 2D drawings (DXF) for CNC laser, plasma, and waterjet cutting.
 
-Программа поставляется в двух вариантах:
-1. **Утилита командной строки (CLI)** — для быстрой интеграции и автоматизации.
-2. **Графическое приложение (GUI)** — современное, красивое десктопное приложение для ОС Windows.
-
----
-
-## Основные возможности (Features)
-
-* 🔍 **Умный алгоритм развертки**: программа сканирует 3D модель детали, автоматически находит все плоские грани, вычисляет их площади и выбирает **наибольшую плоскую грань** для проецирования в 2D чертеж.
-* 📏 **Нормализация координат в положительный квадрант**:
-  Стандартный экспорт CAD сохраняет глобальные 3D координаты, из-за чего детали часто улетают в отрицательные координаты (например, $X \approx -200$, $Y \approx -120$). Из-за этого при открытии в векторных редакторах, таких как **LibreOffice Draw** или **Inkscape**, чертеж кажется пустым.
-  Наш алгоритм автоматически высчитывает локальные границы детали, сдвигает начало координат так, чтобы вся деталь гарантированно лежала в **положительном квадранте с отступом +10 мм**, обеспечивая идеальное отображение на листе в любом векторном редакторе.
-* 📂 **Рекурсивная пакетная обработка**:
-  При выборе папки программа сканирует все вложенные папки без ограничений по глубине (`os.walk`), находит все файлы `.stp` / `.step` и автоматически конвертирует их.
-* 🗂️ **Зеркальное копирование структуры папок**:
-  Для пакетного режима программа создает новую папку с суффиксом `_DXF` (например, `models_DXF`) рядом с исходной. Внутри нее **полностью воссоздается оригинальная структура папок**, а все готовые DXF файлы аккуратно раскладываются по своим местам, оставляя исходники нетронутыми.
-* ⚡ **Асинхронный графический интерфейс (GUI)**:
-  * Полноценная премиальная **темная тема** (Modern Dark Theme).
-  * Многопоточность (все тяжелые CAD вычисления вынесены в фоновый поток, благодаря чему интерфейс никогда не зависает и не пишет «Не отвечает»).
-  * Интерактивная консоль логов в реальном времени, выводящая подробную информацию о площади выбранной грани, координатах, размерах и количестве экспортированных 2D примитивов (линий, дуг, отверстий).
+The application is available in two variants:
+1. **Command Line Interface (CLI)** — for rapid automation and integration.
+2. **Graphical User Interface (GUI)** — a modern, beautiful desktop application for Windows.
 
 ---
 
-## Требования и установка (Requirements)
+## Features
 
-Для запуска скрипта из исходного кода вам понадобятся Python 3.10+ и следующие библиотеки:
+* 🔍 **Smart Flat Pattern Algorithm**: Scans the 3D part model, automatically detects all planar faces, calculates their surface areas, and selects the **largest planar face** to project onto a 2D drawing.
+* 📏 **Positive Quadrant Normalization**:
+  Standard CAD export retains global 3D coordinates, which often results in negative coordinate offsets (e.g. $X \approx -200$, $Y \approx -120$). This makes drawings appear completely blank when opened in vector editors such as **LibreOffice Draw** or **Inkscape**.
+  Our algorithm automatically calculates the local boundaries of the part and shifts the coordinate origin so that the entire part is guaranteed to lie in the **positive quadrant with a +10 mm margin**, ensuring it renders perfectly on screen or paper in any vector editor.
+* 📂 **Recursive Batch Processing**:
+  When a directory is selected, the application recursively scans all nested subfolders without depth limits (`os.walk`), identifies all `.stp` / `.step` files, and automatically converts them.
+* 🗂️ **Mirrored Directory Structure**:
+  For batch mode, the program creates a new parallel folder with a `_DXF` suffix (e.g., `models_DXF`) alongside the source folder. Inside it, **the original nested subfolder structure is completely recreated**, and all generated DXF files are placed in their respective locations, leaving the original source files completely untouched.
+* ⚡ **Asynchronous Graphical Interface (GUI)**:
+  * Full premium **Modern Dark Theme**.
+  * Multi-threaded execution: heavy CAD computations run in a background thread, preventing the UI from freezing or displaying "Not Responding".
+  * Real-time interactive log terminal displaying detailed information on the selected face area, coordinate bounds, dimensions, and the count of exported 2D primitives (lines, arcs, circles).
+
+---
+
+## Requirements and Installation
+
+To run the script from the source code, you will need Python 3.10+ and the following libraries:
 
 ```bash
 pip install cadquery ezdxf pyinstaller
 ```
 
-*Примечание: Библиотека `cadquery` использует профессиональное геометрическое ядро Open CASCADE (OCCT) под капотом для высокоточного импорта и анализа геометрии.*
+*Note: The `cadquery` library uses the professional Open CASCADE Technology (OCCT) geometric kernel under the hood for high-precision geometry import and analysis.*
 
 ---
 
-## Запуск приложения (Usage)
+## Usage
 
-### 1. Графический интерфейс (GUI)
-Чтобы запустить красивое графическое окно:
+### 1. Graphical User Interface (GUI)
+To launch the graphical window:
 ```bash
 python step_to_dxf_gui.py
 ```
-Просто выберите нужный файл или папку, нажмите **«НАЧАТЬ КОНВЕРТАЦИЮ»** и следите за ходом выполнения в консоли логов.
+Simply choose a file or folder, click **"START CONVERSION"**, and watch the progress in real-time in the log terminal.
 
-### 2. Консольная утилита (CLI)
-Скрипт поддерживает гибкие параметры запуска:
+### 2. Command Line Utility (CLI)
+The script supports flexible arguments:
 
-* **Конвертировать все файлы в текущей папке:**
+* **Convert all files in the current folder:**
   ```bash
   python step_to_dxf.py
   ```
-* **Конвертировать конкретный файл:**
+* **Convert a specific file:**
   ```bash
-  python step_to_dxf.py путь/к/файлу.stp
+  python step_to_dxf.py path/to/file.stp
   ```
-* **Конвертировать файл и сохранить в конкретное место:**
+* **Convert a file and save to a specific path:**
   ```bash
-  python step_to_dxf.py путь/к/файлу.stp -o выходной_чертеж.dxf
+  python step_to_dxf.py path/to/file.stp -o output_drawing.dxf
   ```
-* **Рекурсивно сконвертировать целую папку:**
+* **Recursively convert an entire folder:**
   ```bash
-  python step_to_dxf.py путь/к/папке
+  python step_to_dxf.py path/to/folder
   ```
 
 ---
 
-## Сборка автономного EXE-файла (Build)
+## Standalone EXE Build
 
-Если вы хотите собрать десктопное приложение в один исполняемый файл `.exe` для работы на любом компьютере с Windows (без установки Python и библиотек), используйте `pyinstaller`.
+If you want to package the desktop application into a single executable `.exe` file to run on any Windows computer (without having to install Python or any libraries), use `pyinstaller`.
 
-### ⚠️ Важное замечание по сборке:
-Библиотека `cadquery` импортирует модуль `casadi` для решения сборочных связей, содержащий около 200 МБ тяжелых нативных C++ DLL библиотек, которые часто вызывают сбои загрузки в изолированном окружении PyInstaller. Так как наш конвертер работает с одиночными деталями и не требует решения сборочных связей, мы принудительно заглушили (mocked) импорт `casadi` и исключили его из сборки.
+### ⚠️ Critical Build Note:
+The `cadquery` library imports the `casadi` solver module by default, which bundles around 200 MB of native C++ DLLs that frequently trigger load failures in isolated PyInstaller environments. Since our converter processes individual flat parts and does not require resolving assembly constraints, we have safely mocked the `casadi` import and excluded it from compilation.
 
-Для сборки запустите команду:
+To build the executable, run:
 ```bash
 pyinstaller --onefile --noconsole --name "STEP_to_DXF_Converter" --exclude-module casadi step_to_dxf_gui.py
 ```
 
-Готовый файл появится в папке `dist/STEP_to_DXF_Converter.exe`.
-
----
-
-## Разработчик (Author)
-Разработано агентом **Antigravity** (команда Advanced Agentic Coding, Google DeepMind) в паре с пользователем.
+The compiled standalone binary will be saved in `dist/STEP_to_DXF_Converter.exe`.
