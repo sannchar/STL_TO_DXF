@@ -1,0 +1,20 @@
+# PyInstaller and build artifacts
+build/
+dist/
+*.spec
+
+# Python caches and environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+ENV/
+.idea/
+.vscode/
+
+# Local CAD files (exclude test parts and generated outputs)
+*.stp
+*.step
+*.dxf
