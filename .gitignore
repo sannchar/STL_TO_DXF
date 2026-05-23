@@ -18,3 +18,8 @@ ENV/
 *.stp
 *.step
 *.dxf
+
+# Web app temporary folders
+web_app/uploads/
+web_app/outputs/
+

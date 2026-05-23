@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEP to DXF Converter</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="glow-orb" id="orb-1"></div>
+    <div class="glow-orb" id="orb-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-cube logo-icon"></i>
+                <div class="logo-text">
+                    <h1>STEP to DXF</h1>
+                    <span>Flat Pattern Extractor</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="status-badge"><i class="fa-solid fa-server"></i> Server Online</span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Controls & Logs -->
+            <div class="panel control-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Control Center</h2>
+                </div>
+                
+                <!-- Upload Dropzone -->
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="file-input" accept=".stp,.step">
+                    <div class="dropzone-content">
+                        <div class="icon-stack">
+                            <i class="fa-solid fa-cloud-arrow-up main-icon"></i>
+                            <i class="fa-solid fa-file-export accent-icon"></i>
+                        </div>
+                        <h3>Drag & Drop STEP model</h3>
+                        <p>Supports <code>.stp</code> and <code>.step</code> formats</p>
+                        <span class="btn-primary">Browse Files</span>
+                    </div>
+                </div>
+
+                <!-- Selected File Indicator (hidden by default) -->
+                <div class="file-card hidden" id="file-card">
+                    <div class="file-info">
+                        <i class="fa-solid fa-file-invoice file-icon"></i>
+                        <div class="file-details">
+                            <span class="file-name" id="selected-file-name">model_plate.stp</span>
+                            <span class="file-size" id="selected-file-size">14.2 MB</span>
+                        </div>
+                    </div>
+                    <button class="btn-icon" id="btn-clear-file" title="Remove file"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- Convert Button -->
+                <button class="btn-action" id="btn-convert" disabled>
+                    <span>Start Flat Pattern Extraction</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <!-- Processing Logs (Terminal-style) -->
+                <div class="console-wrapper">
+                    <div class="console-header">
+                        <span><i class="fa-solid fa-terminal"></i> CAD Processing Logs</span>
+                        <button class="btn-text-icon" id="btn-clear-logs" title="Clear Logs"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <div class="console-terminal" id="console-terminal">
+                        <div class="log-line system">Waiting for user to load a 3D STEP model...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Visualizer & Stats -->
+            <div class="panel visualizer-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-drafting-compass"></i> 2D Flat Pattern Preview</h2>
+                    <div class="visualizer-actions">
+                        <button class="btn-secondary hidden" id="btn-download" title="Download CNC-ready DXF">
+                            <i class="fa-solid fa-download"></i> Download DXF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Viewer Workspace -->
+                <div class="workspace-container">
+                    <div class="workspace-grid-bg"></div>
+                    
+                    <!-- SVG CAD Preview Canvas -->
+                    <div class="viewer-viewport" id="viewport">
+                        <svg class="cad-svg" id="cad-svg" viewBox="0 0 100 100">
+                            <!-- Draw paths here dynamically -->
+                        </svg>
+                    </div>
+
+                    <!-- Visual Workspace Controls (Overlay) -->
+                    <div class="workspace-controls">
+                        <button class="btn-ctrl" id="btn-zoom-in" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn-ctrl" id="btn-zoom-out" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                        <button class="btn-ctrl" id="btn-zoom-fit" title="Zoom to Fit"><i class="fa-solid fa-expand"></i></button>
+                    </div>
+
+                    <!-- Hover info coordinates -->
+                    <div class="workspace-coords" id="coordinate-tracker">X: 0.00 mm | Y: 0.00 mm</div>
+                </div>
+
+                <!-- Statistics Footer Panel -->
+                <div class="stats-panel" id="stats-panel">
+                    <div class="stat-card">
+                        <span class="stat-label">Sheet Width</span>
+                        <span class="stat-value" id="stat-width">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Sheet Height</span>
+                        <span class="stat-value" id="stat-height">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Largest Face Area</span>
+                        <span class="stat-value" id="stat-area">-</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Vector Entities</span>
+                        <span class="stat-value" id="stat-entities">-</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Fullscreen Loading Spinner Overlay -->
+    <div class="loading-overlay hidden" id="loading-overlay">
+        <div class="spinner-container">
+            <div class="spinner-core"></div>
+            <div class="spinner-ring"></div>
+            <h3>Analyzing 3D Geometry...</h3>
+            <p>Evaluating faces and projecting reference boundaries</p>
+        </div>
+    </div>
+
+    <!-- Script Entrypoint -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
