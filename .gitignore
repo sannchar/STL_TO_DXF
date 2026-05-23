@@ -21,4 +21,5 @@ ENV/
 
 # Web app local folder (do not upload to git)
 web_app/
+passenger_wsgi.py
 
