@@ -19,7 +19,6 @@ ENV/
 *.step
 *.dxf
 
-# Web app temporary folders
-web_app/uploads/
-web_app/outputs/
+# Web app local folder (do not upload to git)
+web_app/
 
